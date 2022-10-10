@@ -50,7 +50,8 @@ contract OwnDAO{
 
     }
 
-    function withdrawAmount(uint _amount , address payable _walletAddress) public isAddressPresent(msg.sender) canWithdraw(msg.sender ,_amount ){
+    function withdrawAmount(uint _amount , address payable _walletAddress) public  canWithdraw(msg.sender ,_amount ){
+        require((allMembers[_walletAddress].releaseTime > 0) , "This wallet has not been created!");
         allMembers[msg.sender].amount = allMembers[msg.sender].amount.sub(_amount);
         _walletAddress.transfer(_amount);
     }
