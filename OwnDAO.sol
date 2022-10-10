@@ -27,6 +27,12 @@ contract OwnDAO{
         require(!(allMembers[_walletAddress].releaseTime > 0) , "This wallet has already been created!");
         _;
     }
+    modifier canWithdraw(address _walletAddress , uint withdrawAmount){
+        require(block.timestamp > allMembers[_walletAddress].releaseTime ,"You can'nt withdraw this early!!");
+        require(msg.sender == allMembers[_walletAddress].walletAddress , "Only the person can withdraw the funds");
+        require(allMembers[_walletAddress].amount <= withdrawAmount, "You have low funds in your account!!");
+        _;
+    }
 
 
     function addMember(string memory _name , address _walletAddress ,  uint _amount)public isAddressPresent(_walletAddress) {
@@ -40,12 +46,14 @@ contract OwnDAO{
 
     function depositAmount(uint _amount , address walletAddress ) public isAddressPresent(walletAddress) {
       allMembers[walletAddress].amount = allMembers[walletAddress].amount.add(_amount);
+      allMembers[walletAddress].releaseTime = allMembers[walletAddress].releaseTime.add(block.timestamp.add(100));
 
     }
 
-
-
-
+    function withdrawAmount(uint _amount , address payable _walletAddress) public canWithdraw(_walletAddress ,_amount ){
+        allMembers[_walletAddress].amount = allMembers[_walletAddress].amount.sub(_amount);
+        _walletAddress.transfer(_amount);
+    }
 
 
 }
