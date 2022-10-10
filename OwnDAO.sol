@@ -35,23 +35,23 @@ contract OwnDAO{
     }
 
 
-    function addMember(string memory _name , address _walletAddress ,  uint _amount)public isAddressPresent(_walletAddress) {
-        
-        allMembers[_walletAddress] = Members( _name ,  _walletAddress, (block.timestamp + 100) ,  _amount);
+    function addMember(string memory _name , address _walletAddress )public payable  isAddressPresent(_walletAddress) isOwner() {
+        require(msg.value > 0 , "The amounnt must be greater than 0 for Member creation!!");
+        allMembers[_walletAddress] = Members( _name ,  _walletAddress, (block.timestamp + 100) , msg.value);
     }
 
     function balanceOfContract() public view returns(uint){
         return address(this).balance;
     }
 
-    function depositAmount(uint _amount , address walletAddress ) public isAddressPresent(walletAddress) {
-      allMembers[walletAddress].amount = allMembers[walletAddress].amount.add(_amount);
-      allMembers[walletAddress].releaseTime = allMembers[walletAddress].releaseTime.add(block.timestamp.add(100));
+    function depositAmount( ) public payable isAddressPresent(msg.sender) {
+      allMembers[msg.sender].amount = allMembers[msg.sender].amount.add(msg.value);
+      allMembers[msg.sender].releaseTime = allMembers[msg.sender].releaseTime.add(block.timestamp.add(100));
 
     }
 
-    function withdrawAmount(uint _amount , address payable _walletAddress) public canWithdraw(_walletAddress ,_amount ){
-        allMembers[_walletAddress].amount = allMembers[_walletAddress].amount.sub(_amount);
+    function withdrawAmount(uint _amount , address payable _walletAddress) public isAddressPresent(msg.sender) canWithdraw(msg.sender ,_amount ){
+        allMembers[msg.sender].amount = allMembers[msg.sender].amount.sub(_amount);
         _walletAddress.transfer(_amount);
     }
 
