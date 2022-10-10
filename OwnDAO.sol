@@ -14,10 +14,17 @@ contract OwnDAO{
 
     }
     mapping(address => Members) allMembers;
-    
+
     modifier isOwner(){
         require(owner == msg.sender , "You are not the owner");
         _;
+    }
+
+    
+
+    function addMember(string memory _name , address _walletAddress ,  uint _amount)public {
+        require(!(allMembers[_walletAddress].releaseTime > 0) , "This wallet has already been created!");
+        allMembers[_walletAddress] = Members( _name ,  _walletAddress, (block.timestamp + 100) ,  _amount);
     }
 
 
